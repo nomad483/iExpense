@@ -8,14 +8,64 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject var expenses = Expenses()
+    @State private var shovingAddExpence = false
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        NavigationView {
+            List {
+                Section("Personal") {
+                    ForEach (expenses.items) { item in
+                        if item.type == "Personal" {
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(item.name)
+                                        .font(.headline)
+                                }
+                                
+                                Spacer()
+                                
+                                Text(item.amount, format: .currency(code: "USD"))
+                            }
+                        }
+                    }
+                    .onDelete(perform: removeItems)
+                }
+                
+                Section("Business") {
+                    ForEach (expenses.items) { item in
+                        if item.type == "Business" {
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(item.name)
+                                        .font(.headline)
+                                }
+                                
+                                Spacer()
+                                
+                                Text(item.amount, format: .currency(code: "USD"))
+                            }
+                        }
+                    }
+                    .onDelete(perform: removeItems)
+                }
+            }
+            .navigationTitle("iExpense")
+            .toolbar {
+                Button {
+                    shovingAddExpence.toggle()
+                } label: {
+                    Image(systemName: "plus")
+                }
+            }
+            .sheet(isPresented: $shovingAddExpence) {
+                AddView(expenses: expenses)
+            }
         }
-        .padding()
+    }
+    
+    func removeItems(at offset: IndexSet) {
+        expenses.items.remove(atOffsets: offset)
     }
 }
 
